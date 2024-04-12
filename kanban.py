@@ -46,18 +46,21 @@ def create_task(data, board_name, title, description, assignee, reporter, status
 
 # List tasks in a board
 def list_tasks(data, board_name):
+    # Check if board exists
     if board_name not in data['boards']:
         print(f'Board "{board_name}" does not exist.')
         return
 
     board = data['boards'][board_name]
 
+    # List tasks in each status
     print(f'Tasks in board "{board_name}":')
     for status in ['todo', 'in_progress', 'done']:
         print(f'\n{status.capitalize()}:')
         tasks = board[status]
         for task in tasks:
-            print(f'- Task ID: {task.task_id}, Title: {task.title}, Priority: {task.priority}, Assignee: {task.assignee}, Reporter: {task.reporter}')
+            # Access dictionary keys to retrieve task attributes
+            print(f'- Task ID: {task["task_id"]}, Title: {task["title"]}, Priority: {task["priority"]}, Assignee: {task["assignee"]}, Reporter: {task["reporter"]}')
 
 # Delete a task in a board
 def delete_task(data, board_name, task_id):
