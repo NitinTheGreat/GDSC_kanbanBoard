@@ -1,0 +1,9 @@
+{
+    "boards": [
+        {
+            "board_id": 0,
+            "name": "Project1",
+            "tasks": []
+        }
+    ]
+}
