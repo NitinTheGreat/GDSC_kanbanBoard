@@ -1,9 +1,49 @@
 {
-    "boards": [
-        {
-            "board_id": 0,
-            "name": "Project1",
-            "tasks": []
+    "boards": {
+        "MyBoardName": {
+            "todo": [],
+            "in_progress": [],
+            "done": []
+        },
+        "testProject1": {
+            "todo": [],
+            "in_progress": [],
+            "done": []
+        },
+        "Project1": {
+            "todo": [],
+            "in_progress": [],
+            "done": [
+                {
+                    "task_id": 1,
+                    "title": "Hello",
+                    "description": "dq",
+                    "assignee": "dq",
+                    "reporter": "q",
+                    "status": "Done",
+                    "priority": "Low"
+                }
+            ]
+        },
+        "Project9": {
+            "todo": [],
+            "in_progress": [],
+            "done": []
+        },
+        "Proj": {
+            "todo": [],
+            "in_progress": [],
+            "done": [
+                {
+                    "task_id": 1,
+                    "title": "nitin",
+                    "description": "sadaf dwaa",
+                    "assignee": "edews wd",
+                    "reporter": "ad",
+                    "status": "Done",
+                    "priority": "High"
+                }
+            ]
         }
-    ]
+    }
 }

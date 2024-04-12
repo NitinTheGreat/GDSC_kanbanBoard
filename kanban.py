@@ -1,84 +1,117 @@
-from models import Board, Task
-from storage import load_data, save_data
+from models import Task
+from storage import save_data
 
-# Add functions for creating, listing, and deleting boards and tasks
+# Create a new board
 def create_board(data, name):
-    board = {"board_id": len(data["boards"]), "name": name, "tasks": []}
-    data["boards"].append(board)
-    print(f'Board "{name}" created.')
-
-def list_boards(data):
-    for board in data["boards"]:
-        print(f'{board["board_id"]}: {board["name"]}')
-
-def delete_board(data, name):
-    for board in data["boards"]:
-        if board["name"] == name:
-            data["boards"].remove(board)
-            print(f'Board "{name}" deleted.')
-            return
-    print(f'Board "{name}" not found.')
-
-def create_task(data, board_name, title, description, assignee, reporter, status, priority):
-    # Find the board
-    board = next((b for b in data["boards"] if b["name"] == board_name), None)
-    if board is None:
-        print(f'Board "{board_name}" not found.')
+    if name in data['boards']:
+        print(f'Board "{name}" already exists.')
         return
-    
-    # Create a new task
-    task_id = len(board["tasks"])
-    task = {
-        "task_id": task_id,
-        "title": title,
-        "description": description,
-        "assignee": assignee,
-        "reporter": reporter,
-        "status": status,
-        "priority": priority
+
+    # Initialize the board with the three statuses
+    data['boards'][name] = {
+        'todo': [],
+        'in_progress': [],
+        'done': []
     }
-    board["tasks"].append(task)
-    print(f'Task "{title}" created with ID {task_id}.')
+    print(f'Board "{name}" created.')
+    save_data(data)
 
+# List existing boards
+def list_boards(data):
+    print("Boards:")
+    for board_name in data['boards']:
+        print(f'- {board_name}')
+
+# Delete a board
+def delete_board(data, name):
+    if name not in data['boards']:
+        print(f'Board "{name}" does not exist.')
+        return
+
+    del data['boards'][name]
+    print(f'Board "{name}" deleted.')
+    save_data(data)
+
+# Create a new task in a board
+def create_task(data, board_name, title, description, assignee, reporter, status='Todo', priority='Medium'):
+    if board_name not in data['boards']:
+        print(f'Board "{board_name}" does not exist.')
+        return
+
+    task_id = len(data['boards'][board_name][status.lower()]) + 1
+    task = Task(task_id, title, description, assignee, reporter, status, priority)
+    data['boards'][board_name][status.lower()].append(task)
+    print(f'Task "{title}" created in board "{board_name}".')
+    save_data(data)
+
+# List tasks in a board
 def list_tasks(data, board_name):
-    # Find the board
-    board = next((b for b in data["boards"] if b["name"] == board_name), None)
-    if board is None:
-        print(f'Board "{board_name}" not found.')
+    if board_name not in data['boards']:
+        print(f'Board "{board_name}" does not exist.')
         return
-    
-    # List tasks
-    for task in board["tasks"]:
-        print(f'{task["task_id"]}: {task["title"]} (status: {task["status"]}, priority: {task["priority"]})')
 
+    board = data['boards'][board_name]
+
+    print(f'Tasks in board "{board_name}":')
+    for status in ['todo', 'in_progress', 'done']:
+        print(f'\n{status.capitalize()}:')
+        tasks = board[status]
+        for task in tasks:
+            print(f'- Task ID: {task.task_id}, Title: {task.title}, Priority: {task.priority}, Assignee: {task.assignee}, Reporter: {task.reporter}')
+
+# Delete a task in a board
 def delete_task(data, board_name, task_id):
-    # Find the board
-    board = next((b for b in data["boards"] if b["name"] == board_name), None)
-    if board is None:
-        print(f'Board "{board_name}" not found.')
+    if board_name not in data['boards']:
+        print(f'Board "{board_name}" does not exist.')
         return
-    
-    # Find and delete the task
-    task_id = int(task_id)
-    for task in board["tasks"]:
-        if task["task_id"] == task_id:
-            board["tasks"].remove(task)
-            print(f'Task "{task_id}" deleted.')
-            return
-    print(f'Task "{task_id}" not found.')
 
+    board = data['boards'][board_name]
+    task_deleted = False
+
+    # Search and delete the task from each status list
+    for status in ['todo', 'in_progress', 'done']:
+        tasks = board[status]
+        for task in tasks:
+            if task.task_id == int(task_id):
+                tasks.remove(task)
+                print(f'Task ID {task_id} deleted from board "{board_name}".')
+                task_deleted = True
+                break
+        if task_deleted:
+            break
+
+    if not task_deleted:
+        print(f'Task ID {task_id} not found in board "{board_name}".')
+    else:
+        save_data(data)
+
+# Move a task to a new status
 def move_task(data, board_name, task_id, new_status):
-    # Find the board
-    board = next((b for b in data["boards"] if b["name"] == board_name), None)
-    if board is None:
-        print(f'Board "{board_name}" not found.')
+    if board_name not in data['boards']:
+        print(f'Board "{board_name}" does not exist.')
         return
-    
-    # Find the task
-    task_id = int(task_id)
-    for task in board["tasks"]:
-        if task["task_id"] == task_id:
-            task["status"] = new_status
-            print(f'Task "{task_id}" moved to status "{new_status}".')
-            return
-    print(f'Task "{task_id}" not found.')
+
+    board = data['boards'][board_name]
+    task_moved = False
+
+    # Move task from its current status to new status
+    for status in ['todo', 'in_progress', 'done']:
+        tasks = board[status]
+        for task in tasks:
+            if task.task_id == int(task_id):
+                tasks.remove(task)
+                
+                # Add task to the new status list
+                task.status = new_status
+                board[new_status.lower()].append(task)
+                
+                print(f'Task ID {task_id} moved to {new_status} in board "{board_name}".')
+                task_moved = True
+                break
+        if task_moved:
+            break
+
+    if not task_moved:
+        print(f'Task ID {task_id} not found in board "{board_name}".')
+    else:
+        save_data(data)

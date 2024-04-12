@@ -1,23 +1,23 @@
 import argparse
 
 def parse_args():
-    import argparse
     parser = argparse.ArgumentParser(description='Kanban board CLI')
 
-    subparsers = parser.add_subparsers(dest='command')
+    # Add subparsers for different commands
+    subparsers = parser.add_subparsers(dest='command', required=True)
 
-    # Board commands
+    # Subparser for board commands
     board_parser = subparsers.add_parser('board', help='Manage boards')
     board_parser.add_argument('action', choices=['create', 'list', 'delete'], help='Action to perform')
     board_parser.add_argument('name', nargs='?', help='Name of the board')
 
-    # Task commands
+    # Subparser for task commands
     task_parser = subparsers.add_parser('task', help='Manage tasks')
-    task_parser.add_argument('action', choices=['create', 'update', 'delete', 'move', 'list'], help='Action to perform')
-    task_parser.add_argument('board', help='Name of the board')
-    task_parser.add_argument('task_id', nargs='?', help='ID of the task')
+    task_parser.add_argument('action', choices=['create', 'list', 'delete', 'move'], help='Action to perform')
+    task_parser.add_argument('board', help='Board name')
+    task_parser.add_argument('task_id', nargs='?', help='Task ID for delete/move operations')
+    task_parser.add_argument('new_status', nargs='?', help='New status for move operation (if applicable)')
 
     args = parser.parse_args()
-    print("Arguments parsed:", args)  # Debugging statement
-
+    print(f"Arguments parsed: {args}")
     return args

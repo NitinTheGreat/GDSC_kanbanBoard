@@ -8,6 +8,20 @@ class Task:
         self.status = status
         self.priority = priority
 
+    def to_dict(self):
+        """Convert Task object to a dictionary."""
+        return {
+            'task_id': self.task_id,
+            'title': self.title,
+            'description': self.description,
+            'assignee': self.assignee,
+            'reporter': self.reporter,
+            'status': self.status,
+            'priority': self.priority
+        }
+
+
+
 class Board:
     def __init__(self, board_id, name):
         self.board_id = board_id
